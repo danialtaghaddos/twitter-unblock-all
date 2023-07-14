@@ -1,29 +1,26 @@
 function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms))
 }
-function clickAll(buttons) {
-    for (i = 0; i < buttons.length; i++) {
-        buttons[i].click();
-    }
-}
-async function unblock(timeoutMs, maxScrolls) {
-    var prevScrollY;
-    var scrollY = window.scrollY;
-    var numScrolls = 0;
-    do {
-        window.scrollTo(0,document.body.scrollHeight);
-        numScrolls++;
-        prevScrollY = scrollY;
-        await sleep(timeoutMs);
-        scrollY = window.scrollY;
-    } while((scrollY - prevScrollY) > 0 && (typeof maxScrolls === 'undefined' || numScrolls < maxScrolls));
 
-    var unblockButtons = document.getElementsByClassName("blocked-text")
-    var actuallyBlock = confirm("Do you want to unblock all " + unblockButtons.length + " accounts?");
-    if (actuallyBlock) {
-        clickAll(unblockButtons);
+async function clickAll(buttons) {
+    console.log('clicking ' + buttons.length + ' buttons')
+    for (let i = 0; i < buttons.length; i++) {
+        buttons[i].click()
+        await sleep(2000)
+        buttons[i].closest('[data-testid="cellInnerDiv"]').remove()
     }
 }
+
+async function unblock() {
+
+    const unblockButtons = document.querySelectorAll('[aria-label="Blocked"]')
+    if(unblockButtons.length > 0) {
+        console.log('found ' + unblockButtons.length + ' buttons.')
+        await clickAll(unblockButtons)
+        unblock().then()
+    }
+}
+
 function main() {
-    unblock(500);
+    unblock().then()
 }
